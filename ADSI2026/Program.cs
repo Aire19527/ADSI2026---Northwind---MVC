@@ -18,7 +18,7 @@ namespace ADSI2026
             #region SQL SERVER
             builder.Services.AddDbContext<NorthwindContext>(opt =>
                {
-                   opt.UseSqlServer(builder.Configuration.GetConnectionString("ConnectionStringADSI_SQL_SERVER"));
+                   opt.UseSqlServer(builder.Configuration.GetConnectionString("NorthwindConnection"));
                });
             #endregion
 
