@@ -1,0 +1,14 @@
+<Solution>
+  <Folder Name="/1. App/">
+    <Project Path="ADSI2026/ADSI2026.csproj" />
+  </Folder>
+  <Folder Name="/2. Domain/">
+    <Project Path="MVC.Domain/MVC.Domain.csproj" />
+  </Folder>
+  <Folder Name="/3. Infraestructure/">
+    <Project Path="MVC.Data/MVC.Data.csproj" />
+  </Folder>
+  <Folder Name="/4. Common/">
+    <Project Path="MVC.Common/MVC.Common.csproj" />
+  </Folder>
+</Solution>
