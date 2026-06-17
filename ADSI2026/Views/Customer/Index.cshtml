@@ -7,16 +7,16 @@
     <div class="col-md-12">
         <table class="table" id="tblCustomer">
             <thead class="thead-dark">
-               <tr>
-                   <th>Id</th>
-                   <th>País</th>
-                   <th>Empresa</th>
-                   <th>Responsable</th>
-                   <th>Télefono</th>
-               </tr>
+                <tr>
+                    <th>Id</th>
+                    <th>País</th>
+                    <th>Empresa</th>
+                    <th>Responsable</th>
+                    <th>Télefono</th>
+                    <th>Acciones</th>
+                </tr>
             </thead>
             <tbody>
-               
             </tbody>
 
         </table>
@@ -24,15 +24,94 @@
 </div>
 
 
-@section Scripts{
+@section Scripts {
 
     <script type="text/javascript">
 
         $(document).ready(function ()
         {
             console.log("Hola clase");
+            getrAllCustomer();
 
         });
 
+        function getrAllCustomer(){
+            $.ajax({
+                url:'@Url.Action("GetAllCustomers", "Customer")',
+                method:'GET',
+                dataType:'json',
+                success:function(result)
+                {
+                    console.log(result);
+                    loadTable(result);
+                },
+                error:function(error)
+                {
+                    console.error(error);
+                }
+            });
+        }
+
+        function loadTable(data){
+            $('#tblCustomer').DataTable( {
+                data: data,
+                destroy:true,
+                responsitve:true,
+                columns: [
+                    { data: 'customerId' },
+                    { data: 'country' },
+                    { data: 'companyName' },
+                    { data: 'contactName' },
+                    { data: 'phone' },
+                    {
+                        data:null,
+                        render:function(data)
+                        {
+                            const id=data.customerId;
+                            return `
+                                     <button  class="btn btn-warning" onclick = "editCategory(`+ id + `)" > <i class="fas fa-edit" > </i> Editar</button >
+                                    <button class="btn btn-danger" onclick = "deleteCustomer('`+ id + `')" > <i class="far fa-trash-alt" > </i> Eliminar</button >
+                            
+                            `
+                        }
+                    }
+                ]
+            } );
+        }
+
+        function deleteCustomer(customerId)
+        {
+            alertDelete().then((result)=>{
+                if(result.isConfirmed)
+                {
+                    confirmDeleteCustomer(customerId);
+                }else{
+                    console.log('No eliminar',customerId);
+                }
+            });
+        }
+
+          function confirmDeleteCustomer(customerId){
+            $.ajax({
+                url:'@Url.Action("DeleteCustomer", "Customer")',
+                method:'DELETE',
+                data:{
+                    'customerId':customerId
+                },
+                dataType:'json',
+                success:function(result)
+                {
+                    console.log(result);
+                    toastMessage('success','Registro eliminado exitosamente');
+                    getrAllCustomer();
+                },
+                error:function(error)
+                {
+                    console.error(error);
+                 alertError('Ha ocurrido un error, por favor vuelva a intentarlo');
+                 
+                }
+            });
+        }
     </script>
 }

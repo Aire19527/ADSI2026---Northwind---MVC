@@ -37,7 +37,7 @@ namespace ADSI2026.Controllers
         }
 
         [HttpDelete("DeleteCustomer")]
-        public async Task<IActionResult> Delete([FromQuery] string customerId)
+        public async Task<IActionResult> DeleteCustomer(string customerId)
         {
             bool success = await _customerServices.DeleteCustomersAsync(customerId);
             return Ok(success);

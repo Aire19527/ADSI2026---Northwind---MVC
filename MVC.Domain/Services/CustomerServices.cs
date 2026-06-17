@@ -66,10 +66,18 @@ namespace MVC.Domain.Services
 
         public async Task<bool> DeleteCustomersAsync(string customerId)
         {
-            Customer entity = await GetCustomerAsync(customerId);
-            _context.Customers.Remove(entity);
+            try
+            {
+                Customer entity = await GetCustomerAsync(customerId);
+                _context.Customers.Remove(entity);
 
-            return await _context.SaveChangesAsync() > 0;
+                return await _context.SaveChangesAsync() > 0;
+            }
+            catch (Exception ex)
+            {
+
+                throw;
+            }
         }
     }
 }
