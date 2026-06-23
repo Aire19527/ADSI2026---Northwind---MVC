@@ -44,7 +44,7 @@ namespace ADSI2026.Controllers
         }
 
         [HttpPost("AddCustomers")]
-        public async Task<IActionResult> AddCustomersAsync([FromBody] AddCustomerDto customer)
+        public async Task<IActionResult> AddCustomers(AddCustomerDto customer)
         {
             bool success = await _customerServices.AddCustomersAsync(customer);
             return Ok(success);
