@@ -51,7 +51,7 @@ namespace ADSI2026.Controllers
         }
 
         [HttpPut("UpdateCustomers")]
-        public async Task<IActionResult> UpdateCustomersAsync([FromBody] UpdateCustomerDto update)
+        public async Task<IActionResult> UpdateCustomersAsync(UpdateCustomerDto update)
         {
             bool success = await _customerServices.UpdateCustomersAsync(update);
             return Ok(success);
