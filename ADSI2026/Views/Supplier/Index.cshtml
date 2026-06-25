@@ -1,0 +1,356 @@
+﻿@{
+}
+
+
+<div class="row">
+    <div class="col-md-8">
+        <h1>Listado Proveedores </h1>
+    </div>
+    <div class="col-md-4">
+        <!-- Button trigger modal -->
+        <button type="button" class="btn btn-primary float-end" onclick="openModal(false)">
+            <i class="fa-solid fa-plus"></i>
+            Crear Proveedores
+        </button>
+    </div>
+</div>
+
+
+
+
+<div class="row">
+    <div class="col-md-12">
+        <table class="table" id="tblSupplier">
+            <thead class="thead-dark">
+                <tr>
+                    <th>Empresa</th>
+                    <th>Responsable</th>
+                    <th>Télefono</th>
+                    <th>Dirección</th>
+                    <th>Ciudad</th>
+                    <th>País</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+
+        </table>
+    </div>
+</div>
+
+
+
+<!-- Modal -->
+<div class="modal fade" id="modalSupplier" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="idTitleSupplier">Crear cliente</h1>
+                <button type="button" class="btn-close" onclick="clearFormSupplier()" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+
+                <form>
+                    <section class="row">
+                        <div class="col-md-6">
+                            <label class="col-form-label">Empresa</label>
+                            <input type="text" class="form-control" id="txtCompany" placeholder="Empresa" />
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="col-form-label">Responsable</label>
+                            <input type="text" class="form-control" id="txtContactName" placeholder="Responsable" />
+                        </div>
+
+                    </section>
+                    <section class="row">
+                        <div class="col-md-6">
+                            <label class="col-form-label">Teléfono</label>
+                            <input type="text" class="form-control" id="txtPhone" placeholder="Teléfono" />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="col-form-label">Dirección</label>
+                            <input type="text" class="form-control" id="txtAddress" placeholder="Dirección" />
+                        </div>
+
+                    </section>
+
+                    <section class="row">
+
+                        <div class="col-md-6">
+                            <label class="col-form-label">Ciudad</label>
+                            <input type="text" class="form-control" id="txtCity" placeholder="Ciudad" />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="col-form-label">País</label>
+                            <input type="text" class="form-control" id="txtCountry" placeholder="País" />
+                        </div>
+
+                    </section>
+                </form>
+
+
+
+
+
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-danger" onclick="clearFormSupplier()">Cancelar</button>
+                <button id="btnModalSave" type="button" class="btn btn-outline-success" onclick="onSaveSupplier()">Crear</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+
+    <script type="text/javascript">
+
+        var idSupplier=0;
+        var listSupplier=[];
+         $(document).ready(function ()
+         {
+             getAllSuppliers();
+
+         });
+
+         function getAllSuppliers(){
+             $.ajax({
+                 url:'@Url.Action("GetAllSuppliers", "Supplier")',
+                 method:'GET',
+                 dataType:'json',
+                 success:function(result)
+                 {
+                     listSupplier=result;
+                     console.log(listSupplier);
+                     loadTable(listSupplier);
+                 },
+                 error:function(error)
+                 {
+                     console.error(error);
+                 }
+             });
+         }
+
+         function loadTable(data){
+             $('#tblSupplier').DataTable( {
+                 data: data,
+                 destroy:true,
+                 responsitve:true,
+                 columns: [
+                     { data: 'companyName' },
+                     { data: 'contactName' },
+                     { data: 'phone' },
+                     { data: 'address' },
+                     { data: 'city' },
+                     { data: 'country' },
+                     {
+                         data:null,
+                         render:function(data)
+                         {
+                             const id=data.supplierId;
+                             return `
+                                      <button  class="btn btn-warning" onclick = "editSupplier('`+ id + `')" > <i class="fas fa-edit" > </i> Editar</button >
+                                     <button class="btn btn-danger" onclick = "deleteSupplier('`+ id + `')" > <i class="far fa-trash-alt" > </i> Eliminar</button >
+
+                             `
+                         }
+                     }
+                 ]
+             } );
+         }
+
+         function deleteSupplier(id)
+         {
+             alertDelete().then((result)=>{
+                 if(result.isConfirmed)
+                 {
+                     confirmDeleteSupplier(id);
+                 }else{
+                     console.log('No eliminar',id);
+                 }
+             });
+         }
+
+         function confirmDeleteSupplier(id){
+             $.ajax({
+                 url:'@Url.Action("DeleteSupplier", "Supplier")',
+                 method:'DELETE',
+                 data:{
+                     'id':id
+                 },
+                 dataType:'json',
+                 success:function(result)
+                 {
+                     console.log(result);
+                     toastMessage('success','Registro eliminado exitosamente');
+                     getAllSuppliers();
+                 },
+                 error:function(error)
+                 {
+                     console.error(error);
+                  alertError('Ha ocurrido un error, por favor vuelva a intentarlo');
+
+                 }
+             });
+         }
+
+         function clearFormSupplier(){
+             $('#txtCompany').val('');
+             $('#txtContactName').val('');
+             $('#txtPhone').val('');
+             $('#txtAddress').val('');
+             $('#txtCity').val('');
+             $('#txtCountry').val('');
+             $('#modalSupplier').modal('hide');
+             idSupplier=0;
+         }
+
+         function validateForm(){
+             if($('#txtCompany').val()==''){
+                 $('#txtCompany').focus()
+                 toastMessage("warning",'La Empresa es obligatorio.');
+                 return false;
+             }
+              if($('#txtContactName').val()==''){
+                 $('#txtContactName').focus()
+                 toastMessage("warning",'El Responsable es obligatorio.');
+                 return false;
+             }
+
+              if($('#txtPhone').val()==''){
+                 $('#txtPhone').focus()
+                 toastMessage("warning",'El Teléfono es obligatorio.');
+                 return false;
+             }
+
+             if($('#txtAddress').val()==''){
+                 $('#txtAddress').focus()
+                 toastMessage("warning",'La Dirección es obligatoria.');
+                 return false;
+             }
+
+             if($('#txtCity').val()==''){
+                 $('#txtCity').focus()
+                 toastMessage("warning",'La Ciudad es obligatoria.');
+                 return false;
+             }
+
+             if($('#txtCountry').val()==''){
+                 $('#txtCountry').focus()
+                 toastMessage("warning",'El País es obligatorio.');
+                 return false;
+             }
+
+             return true;
+         }
+
+        function openModal(isEdit)
+        {
+             if(isEdit){
+                 $('#idTitleSupplier').html('Editar Proveedor');
+                 $('#btnModalSave').html('Editar');
+             }else{
+                 $('#idTitleSupplier').html('Crear Proveedor');
+                 $('#btnModalSave').html('Crear');
+             }
+
+             $('#modalSupplier').modal('show');
+
+        }
+         function onSaveSupplier(){
+             if(validateForm()){
+             const companyName=$('#txtCompany').val();
+             const contactName=$('#txtContactName').val();
+             const phone=$('#txtPhone').val();
+             const address=$('#txtAddress').val();
+             const city=$('#txtCity').val();
+             const country=$('#txtCountry').val();
+
+                var entity={
+                    'companyName':companyName,
+                    'contactName':contactName,
+                    'phone':phone,
+                    'address':address,
+                    'country':country,
+                    'city':city,
+                };
+                console.log(entity);
+                if(idSupplier==0){
+                    addSupplier(entity);
+                }else{
+                    entity.supplierId=idSupplier;
+                    confirmEditSupplier(entity);
+                }
+                    
+
+             }
+         }
+
+         function addSupplier(parameter){
+              $.ajax({
+                 url:'@Url.Action("AddSupplier", "Supplier")',
+                 method:'POST',
+                 data:parameter,
+                 dataType:'json',
+                 success:function(result)
+                 {
+                     console.log(result);
+                     toastMessage('success','Registro creado exitosamente');
+                     clearFormSupplier();
+                     getAllSuppliers();
+                 },
+                 error:function(error)
+                 {
+                     console.error(error);
+                  alertError('Ha ocurrido un error, por favor vuelva a intentarlo');
+
+                 }
+             });
+         }
+
+         function editSupplier(id){
+             idSupplier=id;
+             const entity=listSupplier.find(x=>x.supplierId==idSupplier);
+             
+             $('#txtCompany').val(entity.companyName);
+             $('#txtContactName').val(entity.contactName);
+             $('#txtPhone').val(entity.phone);
+             $('#txtAddress').val(entity.address);
+             $('#txtCity').val(entity.city);
+             $('#txtCountry').val(entity.country);
+
+             openModal(true);
+             console.log(entity);
+
+
+
+             console.log(idSupplier);
+         }
+
+          function confirmEditSupplier(parameter){
+              $.ajax({
+                 url:'@Url.Action("UpdateSupplier", "Supplier")',
+                 method:'PUT',
+                 data:parameter,
+                 dataType:'json',
+                 success:function(result)
+                 {
+                     console.log(result);
+                     toastMessage('success','Registro creado exitosamente');
+                     clearFormSupplier();
+                     getAllSuppliers();
+                 },
+                 error:function(error)
+                 {
+                     console.error(error);
+                  alertError('Ha ocurrido un error, por favor vuelva a intentarlo');
+
+                 }
+             });
+         }
+
+    </script>
+}

@@ -25,6 +25,7 @@ namespace ADSI2026
             #region Inyectores de dependencia
             builder.Services.AddTransient<ICustomerServices, CustomerServices>();            
             builder.Services.AddScoped<ICustomerServices, CustomerServices>();
+            builder.Services.AddScoped<ISupplierServices, SupplierServices>();
 
             #endregion
 
