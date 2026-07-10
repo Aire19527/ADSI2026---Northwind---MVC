@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MVC.Data.Data;
 using MVC.Data.Models;
@@ -18,6 +19,12 @@ namespace ADSI2026.Controllers
         public async Task<IActionResult> Index()
         {
             return View(await _context.Categories.ToListAsync());
+        }
+
+        [HttpGet("GetAllCatogories")]
+        public async Task<IActionResult> GetAllCatogories()
+        {
+            return Ok(await _context.Categories.ToListAsync());
         }
 
         // GET: Categories/Details/5

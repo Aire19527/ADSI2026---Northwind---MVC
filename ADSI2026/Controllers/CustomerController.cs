@@ -1,10 +1,13 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using ADSI2026.Handlers;
+using Microsoft.AspNetCore.Mvc;
+using MVC.Common.Exceptions;
 using MVC.Data.DTO.Customer;
 using MVC.Data.Models;
 using MVC.Domain.Services.Interfaces;
 
 namespace ADSI2026.Controllers
 {
+    [TypeFilter(typeof(CustomExceptionHandler))]
     public class CustomerController : Controller
     {
         private readonly ICustomerServices _customerServices;
@@ -16,7 +19,7 @@ namespace ADSI2026.Controllers
 
         public async Task<IActionResult> Index()
         {
-           // var result = 
+            // var result = 
 
             return View();
         }

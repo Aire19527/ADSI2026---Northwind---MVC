@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using MVC.Common.Exceptions;
 using MVC.Data.Data;
 using MVC.Data.DTO.Customer;
 using MVC.Data.Models;
@@ -66,18 +67,10 @@ namespace MVC.Domain.Services
 
         public async Task<bool> DeleteCustomersAsync(string customerId)
         {
-            try
-            {
-                Customer entity = await GetCustomerAsync(customerId);
-                _context.Customers.Remove(entity);
+            Customer entity = await GetCustomerAsync(customerId);
+            _context.Customers.Remove(entity);
 
-                return await _context.SaveChangesAsync() > 0;
-            }
-            catch (Exception ex)
-            {
-
-                throw;
-            }
+            return await _context.SaveChangesAsync() > 0;
         }
     }
 }

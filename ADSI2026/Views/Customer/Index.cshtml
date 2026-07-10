@@ -54,7 +54,7 @@
                     <section class="row">
                         <div class="col-md-2">
                             <label class="col-form-label">Id Customer</label>
-                            <input type="text" class="form-control" id="txtId" placeholder="Digita el ID" />
+                            <input type="text" class="form-control" id="txtId" maxlength="5" placeholder="Digita el ID" />
                         </div>
                         <div class="col-md-5">
                             <label class="col-form-label">País</label>
@@ -97,7 +97,7 @@
 
     <script type="text/javascript">
 
-        var idCustomer='';
+        var isEdit=false;
         var listCustomer=[];
          $(document).ready(function ()
          {
@@ -178,9 +178,7 @@
                  },
                  error:function(error)
                  {
-                     console.error(error);
-                  alertError('Ha ocurrido un error, por favor vuelva a intentarlo');
-
+                       errorHttp(error);
                  }
              });
          }
@@ -192,7 +190,7 @@
              $('#txtContactName').val('');
              $('#txtPhone').val('');
              $('#modalCustomer').modal('hide');
-             idCustomer='';
+             isEdit=false;
              $('#txtId').attr('disabled',false);
          }
 
@@ -258,7 +256,7 @@
                      'phone':phone,
                  };
 
-                 if(idCustomer==''){
+                 if(isEdit==false){
                      addCustomer(customer);
                  }else{
                      confirmEditCustomer(customer);
@@ -283,29 +281,22 @@
                  },
                  error:function(error)
                  {
-                     console.error(error);
-                  alertError('Ha ocurrido un error, por favor vuelva a intentarlo');
-
+                     errorHttp(error);
                  }
              });
          }
 
          function editCustomer(id){
-             idCustomer=id;
-             const customer=listCustomer.find(x=>x.customerId==idCustomer);
+             isEdit=true;
+             const customer=listCustomer.find(x=>x.customerId==id);
              $('#txtId').val(customer.customerId);
              $('#txtId').attr('disabled',true);
              $('#txtCompany').val(customer.companyName);
              $('#txtCountry').val(customer.country);
-             $('#txtContactName').val(customer.companyName);
+             $('#txtContactName').val(customer.contactName);
              $('#txtPhone').val(customer.phone);
 
              openModal(true);
-             console.log(customer);
-
-
-
-             console.log(idCustomer);
          }
 
           function confirmEditCustomer(parameter){
@@ -317,15 +308,13 @@
                  success:function(result)
                  {
                      console.log(result);
-                     toastMessage('success','Registro creado exitosamente');
+                     toastMessage('success','Registro actualizado exitosamente');
                      clearFormCustomer();
                      getrAllCustomer();
                  },
                  error:function(error)
                  {
-                     console.error(error);
-                  alertError('Ha ocurrido un error, por favor vuelva a intentarlo');
-
+                     errorHttp(error);
                  }
              });
          }

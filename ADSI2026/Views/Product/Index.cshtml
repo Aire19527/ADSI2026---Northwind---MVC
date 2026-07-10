@@ -1,0 +1,407 @@
+﻿@{
+}
+
+
+<div class="row">
+    <div class="col-md-8">
+        <h1>Listado Prodcutos </h1>
+    </div>
+    <div class="col-md-4">
+        <!-- Button trigger modal -->
+        <button type="button" class="btn btn-primary float-end" onclick="openModal(false)">
+            <i class="fa-solid fa-plus"></i>
+            Crear Productos
+        </button>
+    </div>
+</div>
+
+
+
+
+<div class="row">
+    <div class="col-md-12">
+        <table class="table" id="tblCustomer">
+            <thead class="thead-dark">
+                <tr>
+                    <th>Producto</th>
+                    <th>Precio</th>
+                    <th>Cantidad</th>
+                    <th>Categoría</th>
+                    <th>Proveedor</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+
+        </table>
+    </div>
+</div>
+
+
+
+<!-- Modal -->
+<div class="modal fade" id="modalProduct" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="idTitleProduct">Crear</h1>
+                <button type="button" class="btn-close" onclick="clearFormCustomer()" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+
+                <form>
+                    <section class="row">
+                        <div class="col-md-6">
+                            <label class="col-form-label">Producto</label>
+                            <input type="text" class="form-control" id="txtProduct" maxlength="40" placeholder="Nombre Producto" />
+                        </div>
+                        <div class="col-md-3">
+                            <label class="col-form-label">Precio</label>
+                            <input type="text" class="form-control" id="txtPrice" placeholder="Precio" />
+                        </div>
+                        <div class="col-md-3">
+                            <label class="col-form-label">Cantidad</label>
+                            <input type="text" class="form-control" id="txtStock" placeholder="Cantidad" />
+                        </div>
+                    </section>
+
+                    <section class="row">
+
+                        <div class="col-md-6">
+                            <label class="col-form-label">Categoría</label>
+                            <select id="cmbCategory" class="form-control" onchange="changeCmbCategory()">
+                                <option disabled selected>Seleccionar</option>
+                            </select>
+
+                        </div>
+                        <div class="col-md-6">
+                            <label class="col-form-label">Proveedor</label>
+                            <select id="cmbSupplier" class="form-control" onchange="changeCmbSupplier()">
+                                <option disabled selected>Seleccionar</option>
+                            </select>
+                        </div>
+                    </section>
+                </form>
+
+
+
+
+
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-danger" onclick="clearFormCustomer()">Cancelar</button>
+                <button id="btnModalSave" type="button" class="btn btn-outline-success" onclick="onSaveCustomer()">Crear</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+
+    <script type="text/javascript">
+
+         var isEdit=false;
+        var listCategory = [];
+        var listSupplier= [];
+          var idCategorySelected = 0;
+          var idSupplierSelected = 0;
+          $(document).ready(function ()
+          {
+              //getrAllCustomer();
+              getAllSuppliers();
+              getAllCatogories();
+
+          });
+
+
+          function getAllSuppliers(){
+              $.ajax({
+                  url:'@Url.Action("GetAllSuppliers", "Supplier")',
+                  method:'GET',
+                  dataType:'json',
+                  success:function(result)
+                  {
+                      console.log(result);
+                      listSupplier=result;
+                      loadCmbSupplier(listSupplier);
+                  },
+                  error:function(error)
+                  {
+                      console.error(error);
+                  }
+              });
+          }
+
+           function loadCmbSupplier(data, selected) {
+            $("#cmbSupplier").empty();
+            $("#cmbSupplier").append('<option value="" disabled selected>Seleccione una Proveedor</option>');
+            $.each(data, function (i, lista) {
+                if (data[i].supplierId == selected) {
+                    $("#cmbSupplier").append('<option value="' + data[i].supplierId + '"selected>' + data[i].companyName + '</option>');
+                }
+                else {
+                    $("#cmbSupplier").append('<option value="' + data[i].supplierId + '">' + data[i].companyName + '</option>');
+                }
+            });
+         }
+         
+         function changeCmbSupplier() {
+            const cmb = document.getElementById("cmbSupplier");
+            idSupplierSelected = cmb.options[cmb.selectedIndex].value;
+            console.log('valor ha cambiado: ', idSupplierSelected);
+        }
+
+
+            function getAllCatogories(){
+              $.ajax({
+                  url:'@Url.Action("GetAllCatogories", "Categories")',
+                  method:'GET',
+                  dataType:'json',
+                  success:function(result)
+                  {
+                      console.log(result);
+                       listCategory=result;
+                       loadCmbCategory(listCategory);
+                  },
+                  error:function(error)
+                  {
+                      console.error(error);
+                  }
+              });
+          }
+
+        function loadCmbCategory(data, selected) {
+            $("#cmbCategory").empty();
+            $("#cmbCategory").append('<option value="" disabled selected>Seleccione una Categoría</option>');
+            $.each(data, function (i, lista) {
+                if (data[i].categoryId == selected) {
+                    $("#cmbCategory").append('<option value="' + data[i].categoryId + '"selected>' + data[i].categoryName + '</option>');
+                }
+                else {
+                    $("#cmbCategory").append('<option value="' + data[i].categoryId + '">' + data[i].categoryName + '</option>');
+                }
+            });
+         }
+         function changeCmbCategory() {
+            const cmb = document.getElementById("cmbCategory");
+            idCategory = cmb.options[cmb.selectedIndex].value;
+            console.log('valor ha cambiado: ', idCategory);
+        }
+
+          function getrAllCustomer(){
+              $.ajax({
+                  url:'@Url.Action("GetAllCustomers", "Customer")',
+                  method:'GET',
+                  dataType:'json',
+                  success:function(result)
+                  {
+                      listCustomer=result;
+                      loadTable(listCustomer);
+                  },
+                  error:function(error)
+                  {
+                      console.error(error);
+                  }
+              });
+          }
+
+          function loadTable(data){
+              $('#tblCustomer').DataTable( {
+                  data: data,
+                  destroy:true,
+                  responsitve:true,
+                  columns: [
+                      { data: 'customerId' },
+                      { data: 'country' },
+                      { data: 'companyName' },
+                      { data: 'contactName' },
+                      { data: 'phone' },
+                      {
+                          data:null,
+                          render:function(data)
+                          {
+                              const id=data.customerId;
+                              return `
+                                       <button  class="btn btn-warning" onclick = "editCustomer('`+ id + `')" > <i class="fas fa-edit" > </i> Editar</button >
+                                      <button class="btn btn-danger" onclick = "deleteCustomer('`+ id + `')" > <i class="far fa-trash-alt" > </i> Eliminar</button >
+
+                              `
+                          }
+                      }
+                  ]
+              } );
+          }
+
+          function deleteCustomer(customerId)
+          {
+              alertDelete().then((result)=>{
+                  if(result.isConfirmed)
+                  {
+                      confirmDeleteCustomer(customerId);
+                  }else{
+                      console.log('No eliminar',customerId);
+                  }
+              });
+          }
+
+          function confirmDeleteCustomer(customerId){
+              $.ajax({
+                  url:'@Url.Action("DeleteCustomer", "Customer")',
+                  method:'DELETE',
+                  data:{
+                      'customerId':customerId
+                  },
+                  dataType:'json',
+                  success:function(result)
+                  {
+                      console.log(result);
+                      toastMessage('success','Registro eliminado exitosamente');
+                      getrAllCustomer();
+                  },
+                  error:function(error)
+                  {
+                        errorHttp(error);
+                  }
+              });
+          }
+
+          function clearFormCustomer(){
+              $('#txtId').val('');
+              $('#txtCountry').val('');
+              $('#txtCompany').val('');
+              $('#txtContactName').val('');
+              $('#txtPhone').val('');
+              $('#modalProduct').modal('hide');
+              isEdit=false;
+              $('#txtId').attr('disabled',false);
+          }
+
+          function validateForm(){
+              if($('#txtId').val()==''){
+                  $('#txtId').focus()
+                  toastMessage("warning",'El IdCustomer es obligatorio.');
+                  return false;
+              }
+
+              if($('#txtCountry').val()==''){
+                  $('#txtCountry').focus()
+                  toastMessage("warning",'El País es obligatorio.');
+                  return false;
+              }
+
+              if($('#txtCompany').val()==''){
+                  $('#txtCompany').focus()
+                  toastMessage("warning",'La Empresa es obligatorio.');
+                  return false;
+              }
+
+              if($('#txtContactName').val()==''){
+                  $('#txtContactName').focus()
+                  toastMessage("warning",'El Responsable es obligatorio.');
+                  return false;
+              }
+
+              if($('#txtPhone').val()==''){
+                  $('#txtPhone').focus()
+                  toastMessage("warning",'El Teléfono es obligatorio.');
+                  return false;
+              }
+
+              return true;
+          }
+
+         function openModal(isEdit)
+         {
+              if(isEdit){
+                  $('#idTitleProduct').html('Editar producto');
+                  $('#btnModalSave').html('Editar');
+              }else{
+                  $('#idTitleProduct').html('Crear producto');
+                  $('#btnModalSave').html('Crear');
+              }
+
+              $('#modalProduct').modal('show');
+
+         }
+          function onSaveCustomer(){
+              if(validateForm()){
+                  const idCustomer=$('#txtId').val();
+                  const country=$('#txtCountry').val();
+                  const company=$('#txtCompany').val();
+                  const contactName=$('#txtContactName').val();
+                  const phone=$('#txtPhone').val();
+                  const customer={
+                      'customerId':idCustomer,
+                      'country':country,
+                      'companyName':company,
+                      'contactName':contactName,
+                      'phone':phone,
+                  };
+
+                  if(isEdit==false){
+                      addCustomer(customer);
+                  }else{
+                      confirmEditCustomer(customer);
+                  }
+                 console.log(customer);
+
+              }
+          }
+
+          function addCustomer(parameter){
+               $.ajax({
+                  url:'@Url.Action("AddCustomers", "Customer")',
+                  method:'POST',
+                  data:parameter,
+                  dataType:'json',
+                  success:function(result)
+                  {
+                      console.log(result);
+                      toastMessage('success','Registro creado exitosamente');
+                      clearFormCustomer();
+                      getrAllCustomer();
+                  },
+                  error:function(error)
+                  {
+                      errorHttp(error);
+                  }
+              });
+          }
+
+          function editCustomer(id){
+              isEdit=true;
+              const customer=listCustomer.find(x=>x.customerId==id);
+              $('#txtId').val(customer.customerId);
+              $('#txtId').attr('disabled',true);
+              $('#txtCompany').val(customer.companyName);
+              $('#txtCountry').val(customer.country);
+              $('#txtContactName').val(customer.contactName);
+              $('#txtPhone').val(customer.phone);
+
+              openModal(true);
+          }
+
+           function confirmEditCustomer(parameter){
+               $.ajax({
+                  url:'@Url.Action("UpdateCustomers", "Customer")',
+                  method:'PUT',
+                  data:parameter,
+                  dataType:'json',
+                  success:function(result)
+                  {
+                      console.log(result);
+                      toastMessage('success','Registro actualizado exitosamente');
+                      clearFormCustomer();
+                      getrAllCustomer();
+                  },
+                  error:function(error)
+                  {
+                      errorHttp(error);
+                  }
+              });
+          }
+
+    </script>
+}
