@@ -20,7 +20,7 @@
 
 <div class="row">
     <div class="col-md-12">
-        <table class="table" id="tblCustomer">
+        <table class="table" id="tblProduct">
             <thead class="thead-dark">
                 <tr>
                     <th>Producto</th>
@@ -92,7 +92,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-outline-danger" onclick="clearFormCustomer()">Cancelar</button>
-                <button id="btnModalSave" type="button" class="btn btn-outline-success" onclick="onSaveCustomer()">Crear</button>
+                <button id="btnModalSave" type="button" class="btn btn-outline-success" onclick="onSaveProduct()">Crear</button>
             </div>
         </div>
     </div>
@@ -102,21 +102,23 @@
 
     <script type="text/javascript">
 
-         var isEdit=false;
         var listCategory = [];
         var listSupplier= [];
+        var listProduct= [];
           var idCategorySelected = 0;
           var idSupplierSelected = 0;
+          var idProductSelected = 0;
           $(document).ready(function ()
           {
               //getrAllCustomer();
+              getAllProducts();
               getAllSuppliers();
               getAllCatogories();
 
           });
 
 
-          function getAllSuppliers(){
+         function getAllSuppliers(){
               $.ajax({
                   url:'@Url.Action("GetAllSuppliers", "Supplier")',
                   method:'GET',
@@ -134,7 +136,7 @@
               });
           }
 
-           function loadCmbSupplier(data, selected) {
+         function loadCmbSupplier(data, selected) {
             $("#cmbSupplier").empty();
             $("#cmbSupplier").append('<option value="" disabled selected>Seleccione una Proveedor</option>');
             $.each(data, function (i, lista) {
@@ -146,7 +148,7 @@
                 }
             });
          }
-         
+
          function changeCmbSupplier() {
             const cmb = document.getElementById("cmbSupplier");
             idSupplierSelected = cmb.options[cmb.selectedIndex].value;
@@ -154,22 +156,22 @@
         }
 
 
-            function getAllCatogories(){
-              $.ajax({
-                  url:'@Url.Action("GetAllCatogories", "Categories")',
-                  method:'GET',
-                  dataType:'json',
-                  success:function(result)
-                  {
-                      console.log(result);
-                       listCategory=result;
-                       loadCmbCategory(listCategory);
-                  },
-                  error:function(error)
-                  {
-                      console.error(error);
-                  }
-              });
+          function getAllCatogories(){
+            $.ajax({
+                url:'@Url.Action("GetAllCatogories", "Categories")',
+                method:'GET',
+                dataType:'json',
+                success:function(result)
+                {
+                    console.log(result);
+                    listCategory=result;
+                    loadCmbCategory(listCategory);
+                },
+                error:function(error)
+                {
+                    console.error(error);
+                }
+            });
           }
 
         function loadCmbCategory(data, selected) {
@@ -184,21 +186,24 @@
                 }
             });
          }
+         
          function changeCmbCategory() {
             const cmb = document.getElementById("cmbCategory");
             idCategory = cmb.options[cmb.selectedIndex].value;
             console.log('valor ha cambiado: ', idCategory);
         }
 
-          function getrAllCustomer(){
+          function getAllProducts(){
               $.ajax({
-                  url:'@Url.Action("GetAllCustomers", "Customer")',
+                  url:'@Url.Action("GetAllProducts", "Product")',
                   method:'GET',
                   dataType:'json',
                   success:function(result)
                   {
-                      listCustomer=result;
-                      loadTable(listCustomer);
+                      listProduct=result;
+                      console.log(listProduct);
+
+                      loadTable(listProduct);
                   },
                   error:function(error)
                   {
@@ -208,23 +213,23 @@
           }
 
           function loadTable(data){
-              $('#tblCustomer').DataTable( {
+              $('#tblProduct').DataTable( {
                   data: data,
                   destroy:true,
                   responsitve:true,
                   columns: [
-                      { data: 'customerId' },
-                      { data: 'country' },
-                      { data: 'companyName' },
-                      { data: 'contactName' },
-                      { data: 'phone' },
+                      { data: 'productName' },
+                      { data: 'unitPrice' },
+                      { data: 'unitsInStock' },
+                      { data: 'category' },
+                      { data: 'supplier' },
                       {
                           data:null,
                           render:function(data)
                           {
-                              const id=data.customerId;
+                              const id=data.productId;
                               return `
-                                       <button  class="btn btn-warning" onclick = "editCustomer('`+ id + `')" > <i class="fas fa-edit" > </i> Editar</button >
+                                       <button  class="btn btn-warning" onclick = "editProduct('`+ id + `')" > <i class="fas fa-edit" > </i> Editar</button >
                                       <button class="btn btn-danger" onclick = "deleteCustomer('`+ id + `')" > <i class="far fa-trash-alt" > </i> Eliminar</button >
 
                               `
@@ -274,11 +279,15 @@
               $('#txtContactName').val('');
               $('#txtPhone').val('');
               $('#modalProduct').modal('hide');
-              isEdit=false;
-              $('#txtId').attr('disabled',false);
+              
+               idCategorySelected = 0;
+              idSupplierSelected = 0;
+              idProductSelected = 0;
           }
 
           function validateForm(){
+             
+
               if($('#txtId').val()==''){
                   $('#txtId').focus()
                   toastMessage("warning",'El IdCustomer es obligatorio.');
@@ -297,11 +306,13 @@
                   return false;
               }
 
-              if($('#txtContactName').val()==''){
-                  $('#txtContactName').focus()
-                  toastMessage("warning",'El Responsable es obligatorio.');
+             
+                if(idCategorySelected==0){
+                  $('#cmbCategory').focus();
+                  toastMessage("warning",'La categoría es obligatorio.');
                   return false;
               }
+
 
               if($('#txtPhone').val()==''){
                   $('#txtPhone').focus()
@@ -325,27 +336,29 @@
               $('#modalProduct').modal('show');
 
          }
-          function onSaveCustomer(){
+          function onSaveProduct(){
               if(validateForm()){
-                  const idCustomer=$('#txtId').val();
-                  const country=$('#txtCountry').val();
-                  const company=$('#txtCompany').val();
-                  const contactName=$('#txtContactName').val();
-                  const phone=$('#txtPhone').val();
-                  const customer={
-                      'customerId':idCustomer,
-                      'country':country,
-                      'companyName':company,
-                      'contactName':contactName,
-                      'phone':phone,
-                  };
 
-                  if(isEdit==false){
-                      addCustomer(customer);
-                  }else{
-                      confirmEditCustomer(customer);
-                  }
-                 console.log(customer);
+
+                 //  const idCustomer=$('#txtId').val();
+                 //  const country=$('#txtCountry').val();
+                 //  const company=$('#txtCompany').val();
+                 //  const contactName=$('#txtContactName').val();
+                 //  const phone=$('#txtPhone').val();
+                 //  const customer={
+                 //      'customerId':idCustomer,
+                 //      'country':country,
+                 //      'companyName':company,
+                 //      'contactName':contactName,
+                 //      'phone':phone,
+                 //  };
+
+                 //  if(isEdit==false){
+                 //      addCustomer(customer);
+                 //  }else{
+                 //      confirmeditProduct(customer);
+                 //  }
+                 // console.log(customer);
 
               }
           }
@@ -370,20 +383,25 @@
               });
           }
 
-          function editCustomer(id){
-              isEdit=true;
-              const customer=listCustomer.find(x=>x.customerId==id);
-              $('#txtId').val(customer.customerId);
-              $('#txtId').attr('disabled',true);
-              $('#txtCompany').val(customer.companyName);
-              $('#txtCountry').val(customer.country);
-              $('#txtContactName').val(customer.contactName);
-              $('#txtPhone').val(customer.phone);
+          function editProduct(id){
+              idProductSelected=id;
+
+              loadCmbCategory(listCategory,1);
+
+              // const customer=listCustomer.find(x=>x.customerId==id);
+              // $('#txtId').val(customer.customerId);
+              // $('#txtId').attr('disabled',true);
+              // $('#txtCompany').val(customer.companyName);
+              // $('#txtCountry').val(customer.country);
+              // $('#txtContactName').val(customer.contactName);
+              // $('#txtPhone').val(customer.phone);
+
+
 
               openModal(true);
           }
 
-           function confirmEditCustomer(parameter){
+           function confirmeditProduct(parameter){
                $.ajax({
                   url:'@Url.Action("UpdateCustomers", "Customer")',
                   method:'PUT',

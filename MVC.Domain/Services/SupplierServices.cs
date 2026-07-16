@@ -89,18 +89,10 @@ namespace MVC.Domain.Services
 
         public async Task<bool> DeleteSupplierAsync(int id)
         {
-            try
-            {
-                Supplier entity = await GetSupplierAsync(id);
-                _context.Suppliers.Remove(entity);
+            Supplier entity = await GetSupplierAsync(id);
+            _context.Suppliers.Remove(entity);
 
-                return await _context.SaveChangesAsync() > 0;
-            }
-            catch (Exception ex)
-            {
-
-                throw;
-            }
+            return await _context.SaveChangesAsync() > 0;
         }
         #endregion
 

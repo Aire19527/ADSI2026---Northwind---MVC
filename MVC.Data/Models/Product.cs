@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace MVC.Data.Models;
+﻿namespace MVC.Data.Models;
 
 public partial class Product
 {

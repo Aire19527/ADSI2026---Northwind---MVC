@@ -26,6 +26,7 @@ namespace ADSI2026
             builder.Services.AddTransient<ICustomerServices, CustomerServices>();            
             builder.Services.AddScoped<ICustomerServices, CustomerServices>();
             builder.Services.AddScoped<ISupplierServices, SupplierServices>();
+            builder.Services.AddScoped<IProductServices, ProductServices>();
 
             #endregion
 
