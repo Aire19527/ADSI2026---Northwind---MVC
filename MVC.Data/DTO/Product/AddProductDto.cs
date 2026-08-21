@@ -1,4 +1,6 @@
-﻿namespace MVC.Data.DTO.Product
+﻿using Microsoft.AspNetCore.Http;
+
+namespace MVC.Data.DTO.Product
 {
     public class AddProductDto
     {
@@ -11,5 +13,7 @@
         public decimal? UnitPrice { get; set; }
 
         public short? UnitsInStock { get; set; }
+
+        public IFormFile? FileProduct { get; set; }
     }
 }

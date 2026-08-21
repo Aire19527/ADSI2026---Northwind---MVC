@@ -69,6 +69,10 @@ public partial class NorthwindContext : DbContext
     public virtual DbSet<Supplier> Suppliers { get; set; }
 
     public virtual DbSet<Territory> Territories { get; set; }
+    public virtual DbSet<Models.File> Files { get; set; }
+
+
+    public virtual DbSet<ProductFile> ProductFiles { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
@@ -600,6 +604,30 @@ public partial class NorthwindContext : DbContext
                 .HasForeignKey(d => d.RegionId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Territories_Region");
+        });
+
+
+        modelBuilder.Entity<Models.File>(entity =>
+        {
+            entity.HasKey(e => e.IdFile);
+
+            entity.Property(e => e.CreatedOn).HasColumnType("datetime");
+            entity.Property(e => e.Size).HasMaxLength(50);
+            entity.Property(e => e.UrlPath).HasMaxLength(300);
+        });
+
+
+        modelBuilder.Entity<ProductFile>(entity =>
+        {
+            entity.HasOne(d => d.IdFileNavigation).WithMany(p => p.ProductFiles)
+                .HasForeignKey(d => d.IdFile)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_ProductFiles_Files");
+
+            entity.HasOne(d => d.IdProductNavigation).WithMany(p => p.ProductFiles)
+                .HasForeignKey(d => d.IdProduct)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_ProductFiles_Products");
         });
 
         OnModelCreatingPartial(modelBuilder);
